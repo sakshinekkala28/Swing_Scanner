@@ -21,7 +21,6 @@ import pandas as pd
 import streamlit as st
 
 import importlib.util
-from scanner.orchestrator.market_scan import run_market_scan
 
 # --- Locate the strategy engine (the screener file) ---
 # Auto-discover any "*screener*.py" beside this file and use the MOST RECENTLY MODIFIED one,
@@ -208,6 +207,201 @@ SEGMENT_TICKERS = {
     "MidCap":   ["^NSEMDCP50", "NIFTY_MIDCAP_100.NS", "^CNXMIDCAP"],
     "SmallCap": ["^CNXSC", "NIFTYSMLCAP250.NS", "^CNXSMCAP"],
 }
+
+
+# ---------------------------------------------------------------------------
+# CACHE-BUSTER (C2 fix, Aug-2026)
+# ---------------------------------------------------------------------------
+# yfinance's `auto_adjust=True` rescales the ENTIRE history whenever a stock
+# has a corporate action (split, bonus, spin-off). If we cache the pre-split
+# series for 12h and Yahoo publishes the post-split scaling within that TTL,
+# any downstream indicator (SMA200, ATR, %vs SMA) computed on the mixed-scale
+# series produces false signals. The bug is silent — the app still runs.
+#
+# Fix: rotate the cache key every 4 hours. Any split takes effect within 4h.
+# `_cache_bucket()` is an explicit fn arg passed at every call site so it is
+# part of Streamlit's cache key (positional args are keys; kwargs prefixed
+# with _ are excluded — we want it INCLUDED).
+# ---------------------------------------------------------------------------
+def _cache_bucket() -> str:
+    """Rotates every 4 hours. Included in cache keys of fetch_one / fetch_index /
+    fetch_segments so any split-adjust change from yfinance is picked up within
+    a single 4h window, regardless of the 12h TTL."""
+    now = dt.datetime.now()
+    return now.strftime("%Y%m%d_") + f"{now.hour // 4:02d}"
+
+
+@st.cache_data(show_spinner=False, ttl=60 * 60 * 12)
+def _fetch_one_impl(ticker: str, start: dt.date, end: dt.date,
+                    cache_bucket: str) -> pd.DataFrame:
+    """The actual fetcher. `cache_bucket` is a versioning string that participates
+    in the cache key so a new 4h window forces a re-download (see C2 fix note)."""
+    t = yf.Ticker(ticker)
+    df = t.history(start=start, end=end, interval="1d", auto_adjust=True)
+    if df is None or df.empty:
+        return pd.DataFrame()
+    df = df[["Open", "High", "Low", "Close", "Volume"]].copy()
+    df.index = pd.to_datetime(df.index).tz_localize(None)
+    return df.dropna()
+
+
+def fetch_one(ticker: str, start: dt.date, end: dt.date) -> pd.DataFrame:
+    """Public wrapper that injects the 4h cache_bucket into the cache key."""
+    return _fetch_one_impl(ticker, start, end, _cache_bucket())
+
+
+@st.cache_data(show_spinner=False, ttl=60 * 60 * 12)     # M9 FIX: unified to 12h (was 6h)
+def _fetch_index_impl(start: dt.date, end: dt.date, cache_bucket: str):
+    """Fetch a broad benchmark index (Nifty 500, fallback Nifty 50) for regime + RS.
+    `cache_bucket` participates in the cache key (see C2 fix note above)."""
+    if yf is None:
+        return None, pd.DataFrame()
+    for t in BENCH_TICKERS:
+        try:
+            df = yf.Ticker(t).history(start=start, end=end, interval="1d", auto_adjust=True)
+            if df is not None and not df.empty:
+                df = df[["Open", "High", "Low", "Close", "Volume"]].copy()
+                df.index = pd.to_datetime(df.index).tz_localize(None)
+                return t, df.dropna()
+        except Exception:
+            continue
+    return None, pd.DataFrame()
+
+
+def fetch_index(start: dt.date, end: dt.date):
+    return _fetch_index_impl(start, end, _cache_bucket())
+
+
+@st.cache_data(show_spinner=False, ttl=60 * 60 * 12)     # M9 FIX: unified to 12h (was 6h)
+def _fetch_segments_impl(start: dt.date, end: dt.date, cache_bucket: str) -> dict:
+    """Fetch mid/small-cap segment indices. Returns {name: pct_vs_200dma} for those that resolve."""
+    out = {}
+    if yf is None:
+        return out
+    for seg, candidates in SEGMENT_TICKERS.items():
+        for t in candidates:
+            try:
+                df = yf.Ticker(t).history(start=start, end=end, interval="1d", auto_adjust=True)
+                if df is None or df.empty or len(df) < 210:
+                    continue
+                c = df["Close"].dropna()
+                s200 = c.rolling(200).mean().iloc[-1]
+                if not np.isfinite(s200):
+                    continue
+                out[seg] = {"ticker": t,
+                            "pct_vs_200": round(float(c.iloc[-1] / s200 - 1) * 100, 2),
+                            "above_200": bool(c.iloc[-1] > s200)}
+                break
+            except Exception:
+                continue
+    return out
+
+
+def fetch_segments(start: dt.date, end: dt.date) -> dict:
+    return _fetch_segments_impl(start, end, _cache_bucket())
+
+
+def compute_breadth(rows: list) -> dict:
+    """Advance/decline breadth computed from the scanned universe itself (no extra fetches).
+    This is the piece that catches a narrow, breadth-negative day behind a green headline index."""
+    ok = [r for r in rows if r.get("status") == "ok" and np.isfinite(r.get("day_chg_%", np.nan))]
+    n = len(ok)
+    if n == 0:
+        return {"status": "UNKNOWN", "n": 0}
+    adv = sum(1 for r in ok if r["day_chg_%"] > 0)
+    dec = sum(1 for r in ok if r["day_chg_%"] < 0)
+    above50 = sum(1 for r in ok if r.get("above_50dma"))
+    ad_ratio = adv / max(dec, 1)
+    pct_adv = 100 * adv / n
+    pct_above50 = 100 * above50 / n
+    # negative breadth: most names fell today, or most sit below their own 50-DMA
+    if pct_adv >= 55 and pct_above50 >= 50:
+        status = "POSITIVE"
+    elif pct_adv < 40 or pct_above50 < 40:
+        status = "NEGATIVE"
+    else:
+        status = "MIXED"
+    return {"status": status, "n": n, "advancers": adv, "decliners": dec,
+            "pct_advancers": round(pct_adv, 1), "pct_above_50dma": round(pct_above50, 1),
+            "ad_ratio": round(ad_ratio, 2)}
+
+
+def compute_regime(idx_df: pd.DataFrame) -> dict:
+    """Trend/momentum of the broad benchmark (one input to the composite gate)."""
+    if idx_df.empty or len(idx_df) < 210:
+        return {"status": "UNKNOWN", "note": "index data unavailable",
+                "idx_ret_window": 0.0, "index_ok": False}
+    c = idx_df["Close"]
+    s200 = c.rolling(200).mean().iloc[-1]
+    last = float(c.iloc[-1])
+    above200 = bool(last > s200) if np.isfinite(s200) else True
+    pct_vs200 = (last / s200 - 1) * 100 if np.isfinite(s200) else np.nan
+    roc10 = (c.iloc[-1] / c.iloc[-11] - 1) * 100 if len(c) > 11 else 0.0
+    idx_ret_window = (c.iloc[-1] / c.iloc[-(RS_WINDOW + 1)] - 1) * 100 if len(c) > RS_WINDOW else 0.0
+    if above200 and roc10 > -1.0:
+        status = "RISK-ON"
+    elif above200 or roc10 > -3.0:
+        status = "NEUTRAL"
+    else:
+        status = "RISK-OFF"
+    return {"status": status, "above_200": above200, "pct_vs_200": round(float(pct_vs200), 2),
+            "roc10": round(float(roc10), 2), "idx_ret_window": float(idx_ret_window),
+            "last": round(last, 2), "index_ok": True}
+
+
+BREADTH_MIN_N_FOR_VETO = 100          # H8 statistical floor — see composite_gate docs
+
+
+def composite_gate(regime: dict, segments: dict, breadth: dict) -> dict:
+    """Combine index trend + segment trend + breadth into one verdict.
+
+    Negative BREADTH can force RISK-OFF even when the headline index is green —
+    the exact scenario where a basket of longs sinks behind a mega-cap-driven
+    index. BUT only when breadth is measured on a statistically-significant
+    sample.
+
+    H8 FIX (Aug-2026): breadth is computed from the SCANNED tickers, which may
+    be as few as 50 (LargeCap bucket). A 50-name advance/decline read is noise;
+    treating it as a hard veto over-rejected on small-universe runs. Fix:
+      * breadth participates in the score only when `n >= BREADTH_MIN_N_FOR_VETO`
+      * the hard "breadth veto over green index" branch requires the same floor
+      * when n is below the floor, breadth is displayed but marked "advisory"
+        and doesn't influence the verdict
+    """
+    idx_state = regime.get("status", "UNKNOWN")
+    br = breadth.get("status", "UNKNOWN")
+    br_n = int(breadth.get("n", 0))
+    br_significant = br_n >= BREADTH_MIN_N_FOR_VETO
+    seg_below = [s for s, v in segments.items() if not v.get("above_200", True)]
+
+    score = 0
+    if idx_state == "RISK-ON":  score += 1
+    elif idx_state == "RISK-OFF": score -= 1
+    # H8: only score breadth when the sample is large enough to trust it
+    if br_significant:
+        if br == "POSITIVE": score += 1
+        elif br == "NEGATIVE": score -= 1
+    if seg_below: score -= 1                    # your universe's own segment is in a downtrend
+
+    # H8: veto only when breadth is negative AND statistically significant
+    if br_significant and br == "NEGATIVE" and idx_state != "RISK-ON":
+        final = "RISK-OFF"
+    elif score >= 2:
+        final = "RISK-ON"
+    elif score <= -1:
+        final = "RISK-OFF"
+    else:
+        final = "NEUTRAL"
+
+    br_label = br if br_significant else f"{br} (advisory, n={br_n} < {BREADTH_MIN_N_FOR_VETO})"
+    reasons = [f"index {idx_state}", f"breadth {br_label}"]
+    if seg_below:
+        reasons.append(f"{'/'.join(seg_below)} below 200-DMA")
+    elif segments:
+        reasons.append("segments above 200-DMA")
+    return {"final": final, "score": score, "reasons": reasons,
+            "breadth_significant": br_significant,
+            "breadth_veto": (br_significant and br == "NEGATIVE" and idx_state == "RISK-ON")}
 
 
 def scan_one(ticker, start, end, strategy, p, bt_kwargs, idx_ret_window=0.0,
@@ -496,8 +690,6 @@ def body():
     st.caption(f"⚙️ Strategy engine loaded: **{ENGINE_FILE}** (newest `*screener*.py` in this folder)")
 
     universe, src = load_universe()
-
-    HEADLESS = os.getenv("SWING_SCANNER_HEADLESS", "0") == "1"
 
     with st.sidebar:
         st.header("1 - Universe")
@@ -959,7 +1151,7 @@ def body():
                  "converts a 9% win-rate loser (11 trades, avg −4.57%) into a 50% "
                  "win-rate winner (4 trades, avg +6.75%) by rejecting failed breakouts. "
                  "Cuts trade count ~65% — quality over quantity. Recommend leaving ON.")
-        run = HEADLESS or st.button("Scan market", type="primary", use_container_width=True)
+        run = st.button("Scan market", type="primary", use_container_width=True)
 
     if not run and "scan" not in st.session_state:
         st.info("Pick a segment and click Scan market. Tip: for a nightly full run, schedule this "
@@ -1113,39 +1305,17 @@ def body():
             run_list = tickers[:max_n]
         # =============== END FUNDAMENTAL NO-TRADE GATE =================
 
-        status = st.empty()
-        prog = st.progress(0.0)
-
-        status.write("Running market scan...")
-
-        scan_output = run_market_scan(
-            tickers=run_list,
-            start=start,
-            end=end,
-            strategy=strategy,
-            p=p,
-            bt_kwargs=bt_kwargs,
-            sector_map=sector_map,
-            idx_df=idx_df,
-            idx_ret_window=idx_ret_window,
-            require_confirmation=require_confirmation,
-            block_risk_off=block_risk_off,
-            progress_callback=lambda current, total, symbol: (
-                status.write(
-                    f"Scanning {symbol} ({current}/{total})..."
-                ),
-                prog.progress(current / total),
-            ),
-        )
-
-        status.empty()
-        prog.empty()
-
-        rows = scan_output["results"].to_dict("records")
-        breadth = scan_output["breadth"]
-        segments = scan_output["segments"]
-        regime = scan_output["regime"]
-        gate = scan_output["gate"]
+        rows, prog, status = [], st.progress(0.0), st.empty()
+        for k, sym in enumerate(run_list):
+            status.write(f"Scanning {sym}  ({k+1}/{len(run_list)}) ...")
+            rows.append(scan_one(to_yahoo(sym), start, end, strategy, p, bt_kwargs,
+                                 idx_ret_window, sector_map,
+                                 require_confirmation=require_confirmation,
+                                 bench_close=(idx_df["Close"] if not idx_df.empty else None),
+                                 block_risk_off=block_risk_off))
+            prog.progress((k + 1) / len(run_list))
+            time.sleep(0.05)
+        status.empty(); prog.empty()
 
         # ================== NEWS & EVENT-RISK PASS  🆕 (Aug-2026) =========
         # Fetch news/events for EVERY fundamentally-passing stock, not just
