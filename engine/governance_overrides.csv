@@ -1,0 +1,17 @@
+ticker,promoter_pledge_pct,promoter_holding_pct,fii_delta_qoq,dii_delta_qoq,mf_delta_qoq,auditor_qualified,rpt_concern,note
+# --------------------------------------------------------------------------------------
+# governance_overrides.csv — AUTO-MAINTAINED by governance_fetcher.py
+# --------------------------------------------------------------------------------------
+# AUTO-fetched (overwritten on every refresh — do not edit by hand):
+#   promoter_pledge_pct, promoter_holding_pct, fii_delta_qoq, dii_delta_qoq, mf_delta_qoq
+#
+# USER-MAINTAINED (preserved across refreshes):
+#   auditor_qualified  : 1 if auditor issued qualified/adverse/disclaimer opinion
+#   rpt_concern        : 1 if related-party-transaction concerns exist
+#   note               : free text
+# --------------------------------------------------------------------------------------
+20MICRONS,0.0,45.04,0.0,-0.03,,,,
+21STCENMGM,0.0,64.43,,,,,,
+360ONE,0.0,6.2,-4.78,5.95,,,,
+3BBLACKBIO,0.0,40.95,-0.07,0.17,,,,
+3IINFOLTD,0.0,0.0,,,,,,

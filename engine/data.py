@@ -40,9 +40,14 @@ import yfinance as yf
 # Local Imports
 ###############################################################################
 from config import settings
+
 from engine.governance_fetcher import (
     refresh_governance_overrides,
 )
+from engine.nse_events import (
+    event_risk,
+)
+
 from engine.storage import StorageManager
 from engine.universe_loader import load_full_universe
 from engine.news_sentiment import fetch_news_score
@@ -950,32 +955,45 @@ class MarketDataEngine:
 
         try:
 
-            from engine.nse_events import (
-                NSEEventsEngine,
-            )
 
-            events = (
+            rows = []
 
-                NSEEventsEngine()
+            for symbol in dataframe["Symbol"].unique():
 
-                .fetch_latest()
+                risk = event_risk(
+                    symbol,
+                )
 
+
+                rows.append(
+
+                    {
+                        "Symbol": symbol,
+                        "EVENT_COUNT": len(
+                            risk.get(
+                                "all_upcoming",
+                                [],
+                            )
+                        ),
+                    }
+
+                )
+
+
+            events = pd.DataFrame(
+                rows
             )
 
             if {
 
                 "Symbol",
-
                 "EVENT_COUNT",
 
             }.issubset(events.columns):
-
                 dataframe = dataframe.merge(
 
                     events,
-
                     how="left",
-
                     on="Symbol",
 
                 )
@@ -987,16 +1005,16 @@ class MarketDataEngine:
                 exc,
             )
 
-        dataframe["EVENT_COUNT"] = (
+        if "EVENT_COUNT" not in dataframe.columns:
 
-            dataframe.get(
-                "EVENT_COUNT",
-                0,
+            dataframe["EVENT_COUNT"] = 0
+
+        else:
+
+            dataframe["EVENT_COUNT"] = (
+                dataframe["EVENT_COUNT"]
+                .fillna(0)
             )
-
-            .fillna(0)
-
-        )
 
         return dataframe
 

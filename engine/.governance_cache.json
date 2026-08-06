@@ -1,0 +1,53 @@
+{
+  "20MICRONS": {
+    "ts": 1786022427.49047,
+    "data": {
+      "promoter_holding_pct": 45.04,
+      "fii_delta_qoq": 0.0,
+      "dii_delta_qoq": -0.03,
+      "promoter_pledge_pct": 0.0
+    },
+    "source": "screener",
+    "slug": "20MICRONS"
+  },
+  "21STCENMGM": {
+    "ts": 1786022428.8642886,
+    "data": {
+      "promoter_holding_pct": 64.43,
+      "promoter_pledge_pct": 0.0
+    },
+    "source": "screener",
+    "slug": "21STCENMGM"
+  },
+  "360ONE": {
+    "ts": 1786022430.2559936,
+    "data": {
+      "promoter_holding_pct": 6.2,
+      "fii_delta_qoq": -4.78,
+      "dii_delta_qoq": 5.95,
+      "promoter_pledge_pct": 0.0
+    },
+    "source": "screener",
+    "slug": "360ONE"
+  },
+  "3BBLACKBIO": {
+    "ts": 1786022431.631402,
+    "data": {
+      "promoter_holding_pct": 40.95,
+      "fii_delta_qoq": -0.07,
+      "dii_delta_qoq": 0.17,
+      "promoter_pledge_pct": 0.0
+    },
+    "source": "screener",
+    "slug": "3BBLACKBIO"
+  },
+  "3IINFOLTD": {
+    "ts": 1786022432.9985769,
+    "data": {
+      "promoter_pledge_pct": 0.0,
+      "promoter_holding_pct": 0.0
+    },
+    "source": "screener",
+    "slug": "3IINFOLTD"
+  }
+}
