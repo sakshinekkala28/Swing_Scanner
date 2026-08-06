@@ -40,6 +40,9 @@ import yfinance as yf
 # Local Imports
 ###############################################################################
 from config import settings
+from engine.governance_fetcher import (
+    refresh_governance_overrides,
+)
 from engine.storage import StorageManager
 from engine.universe_loader import load_full_universe
 from engine.news_sentiment import fetch_news_score
@@ -890,34 +893,20 @@ class MarketDataEngine:
 
         try:
 
-            from engine.governance_fetcher import (
-                GovernanceFetcher,
-            )
 
-            governance = (
-
-                GovernanceFetcher()
-
-                .fetch()
-
+            governance = refresh_governance_overrides(
+                dataframe["Symbol"].tolist()
             )
 
             if {
-
                 "Symbol",
-
                 "GOVERNANCE_SCORE",
-
             }.issubset(governance.columns):
 
                 dataframe = dataframe.merge(
-
                     governance,
-
                     how="left",
-
                     on="Symbol",
-
                 )
 
         except Exception as exc:
@@ -927,16 +916,16 @@ class MarketDataEngine:
                 exc,
             )
 
-        dataframe["GOVERNANCE_SCORE"] = (
+        if "GOVERNANCE_SCORE" not in dataframe.columns:
 
-            dataframe.get(
-                "GOVERNANCE_SCORE",
-                100.0,
+            dataframe["GOVERNANCE_SCORE"] = 100.0
+
+        else:
+
+            dataframe["GOVERNANCE_SCORE"] = (
+                dataframe["GOVERNANCE_SCORE"]
+                .fillna(100.0)
             )
-
-            .fillna(100.0)
-
-        )
 
         return dataframe
 
