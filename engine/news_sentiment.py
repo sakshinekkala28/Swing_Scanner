@@ -24,9 +24,8 @@ Public API:
     fetch_news_score(ticker_yahoo) -> dict
 """
 
-import re
-import time
 import datetime as dt
+import re
 import urllib.parse
 import urllib.request
 

@@ -62,14 +62,15 @@ import os
 # If output is different (or AttributeError), you are running the OLD file.
 # ============================================================================
 PARSER_VERSION = "AUG-2026-PLEDGE-FIX-V2-BULLET-REGEX"
+import argparse
 import io
 import json
-import time
-import re
 import random
-import argparse
-import pandas as pd
+import re
+import time
+
 import numpy as np
+import pandas as pd
 
 try:
     from curl_cffi import requests as curl_requests
@@ -143,7 +144,7 @@ def _read_cache() -> dict:
     if not os.path.exists(CACHE_FILE):
         return {}
     try:
-        with open(CACHE_FILE, "r", encoding="utf-8") as f:
+        with open(CACHE_FILE, encoding="utf-8") as f:
             return json.load(f)
     except Exception:
         return {}
@@ -501,7 +502,7 @@ def _read_header_comments() -> str:
     if not os.path.exists(CSV_PATH):
         return _default_header_comment()
     try:
-        with open(CSV_PATH, "r", encoding="utf-8") as f:
+        with open(CSV_PATH, encoding="utf-8") as f:
             content = f.read()
         parts = []
         for line in content.splitlines():
@@ -790,7 +791,7 @@ Examples:
     print(f"  Failed:     {result['failed']}")
     print(f"  Sources:    {result['source_breakdown']}")
     if result["failed"]:
-        print(f"\nSee .governance_failures.json for per-ticker failure reasons.")
+        print("\nSee .governance_failures.json for per-ticker failure reasons.")
 
 
 if __name__ == "__main__":

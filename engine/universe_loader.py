@@ -50,10 +50,11 @@ USAGE
     meta       = bundle["meta"]           # {source, cache_age_hours, notes}
 """
 
-import os
 import io
 import json
+import os
 import time
+
 import pandas as pd
 import streamlit as st
 
@@ -231,7 +232,7 @@ def _read_cache() -> dict:
     if not os.path.exists(CACHE_FILE):
         return {}
     try:
-        with open(CACHE_FILE, "r", encoding="utf-8") as f:
+        with open(CACHE_FILE, encoding="utf-8") as f:
             return json.load(f)
     except Exception:
         return {}

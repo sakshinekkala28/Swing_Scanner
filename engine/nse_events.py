@@ -20,14 +20,11 @@ Public API:
     event_risk(ticker, next_sessions=5) -> dict
 """
 
-import io
-import json
-import time
 import datetime as dt
+import json
 import re
 
 try:
-    from curl_cffi import requests as _curl
     HAVE_CURL_CFFI = True
 except Exception:
     HAVE_CURL_CFFI = False
@@ -39,7 +36,8 @@ except Exception:
 
 # Reuse the NSE session primer from governance_fetcher (already primes cookies etc.)
 try:
-    from governance_fetcher import _make_session as _sess, _prime_nse as _prime
+    from governance_fetcher import _make_session as _sess
+    from governance_fetcher import _prime_nse as _prime
     HAVE_HELPERS = True
 except Exception:
     HAVE_HELPERS = False

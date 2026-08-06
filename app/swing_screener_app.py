@@ -11,10 +11,11 @@ Run with:  streamlit run swing_screener_app.py
 """
 
 import datetime as dt
+
 import numpy as np
 import pandas as pd
-import streamlit as st
 import plotly.graph_objects as go
+import streamlit as st
 from plotly.subplots import make_subplots
 
 try:

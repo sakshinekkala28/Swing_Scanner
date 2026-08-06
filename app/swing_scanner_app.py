@@ -13,14 +13,14 @@ Optional: place a `universe.csv` next to this file with columns [ticker, bucket]
           (bucket = LargeCap / MidCap / SmallCap / Nifty500) to override the built-in list.
 """
 
+import datetime as dt
+import importlib.util
 import os
 import time
-import datetime as dt
+
 import numpy as np
 import pandas as pd
 import streamlit as st
-
-import importlib.util
 
 # --- Locate the strategy engine (the screener file) ---
 # Auto-discover any "*screener*.py" beside this file and use the MOST RECENTLY MODIFIED one,
@@ -77,16 +77,22 @@ _spec.loader.exec_module(engine)
 
 # --- Fundamental "no-trade" gate ---
 from screeners.fundamental_screen import (
-    screen_universe as fs_screen_universe,
-    summarize_results as fs_summarize,
-    rejects_to_dataframe as fs_rejects_df,
     DEFAULT_FUNDA_CONFIG,
+)
+from screeners.fundamental_screen import (
+    rejects_to_dataframe as fs_rejects_df,
+)
+from screeners.fundamental_screen import (
+    screen_universe as fs_screen_universe,
+)
+from screeners.fundamental_screen import (
+    summarize_results as fs_summarize,
 )
 
 # --- News & Event risk (Aug-2026) ---
 try:
-    from news.nse_events import event_risk as _event_risk
     from news.news_sentiment import fetch_news_score as _news_score
+    from news.nse_events import event_risk as _event_risk
     HAVE_NEWS = True
 except Exception:
     HAVE_NEWS = False

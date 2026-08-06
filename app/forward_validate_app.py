@@ -31,11 +31,10 @@ HONESTLY-DISCLOSED LIMITATIONS (auto-shown in UI):
 Run:  streamlit run forward_validate_app.py
 """
 
-import os
-import sys
-import time
-import importlib.util
 import datetime as dt
+import importlib.util
+import os
+
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -45,6 +44,8 @@ try:
 except Exception:
     yf = None
 
+    
+from universe_loader import load_full_universe
 
 # ======================================================================================
 #  Engine loader — reuses swing_screener_app.py
@@ -57,8 +58,6 @@ if not os.path.exists(_ENGINE_PATH):
 _spec = importlib.util.spec_from_file_location("engine", _ENGINE_PATH)
 engine = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(engine)
-
-from universe_loader import load_full_universe
 
 
 # ======================================================================================
@@ -320,8 +319,8 @@ def main():
             st.info(f"ℹ️ News/event DISABLED (cutoff {days_old}d ago, "
                     f"free news doesn't archive that far).")
         if days_old > 5:
-            st.info(f"ℹ️ Fundamentals DISABLED (yfinance .info is today's data, "
-                    f"not point-in-time).")
+            st.info("ℹ️ Fundamentals DISABLED (yfinance .info is today's data, "
+                    "not point-in-time).")
 
         st.header("2 · Universe")
         buckets_meta = load_full_universe()
@@ -653,7 +652,7 @@ def main():
 
     # =============== METHODOLOGY EXPANDER ===============
     with st.expander("🎓 What each toggle does + honest caveats"):
-        st.markdown(f"""
+        st.markdown("""
 **v2 additions and their purpose:**
 
 - **Regime gate** — the single biggest fix. Uses ONLY benchmark index data ≤ cutoff

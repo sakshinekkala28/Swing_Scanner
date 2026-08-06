@@ -20,9 +20,10 @@ Standalone apps still work exactly as before:
   streamlit run swing_scanner_app.py
   streamlit run monitor_app.py
 """
+import importlib.util
 import os
 import sys
-import importlib.util
+
 import streamlit as st
 
 _HERE = os.path.dirname(os.path.abspath(__file__))

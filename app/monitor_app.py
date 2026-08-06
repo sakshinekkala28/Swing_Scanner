@@ -57,11 +57,13 @@ RATCHET LADDER (as-you-earn stop tightening):
     +75% gain → raise stop to +60%
    +100% gain → raise stop to +80%
 """
-import os
-import io
-import time
-import importlib.util
 import datetime as dt
+import importlib.util
+import io
+import os
+import re as _re
+import time
+
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -71,6 +73,9 @@ try:
 except Exception:
     yf = None
 
+from news_sentiment import fetch_news_score as _news_score
+from nse_events import event_risk as _event_risk
+from universe_loader import load_full_universe as _ul_load
 
 # ======================================================================================
 #  ENGINE LOADER — reuse the swing engine
@@ -83,19 +88,17 @@ _spec.loader.exec_module(engine)
 
 # Optional modules — news + events + sector
 try:
-    from news_sentiment import fetch_news_score as _news_score
     HAVE_NEWS = True
 except Exception:
     HAVE_NEWS = False
 
 try:
-    from nse_events import event_risk as _event_risk
+
     HAVE_EVENTS = True
 except Exception:
     HAVE_EVENTS = False
 
 try:
-    from universe_loader import load_full_universe as _ul_load
     HAVE_UNIVERSE = True
 except Exception:
     HAVE_UNIVERSE = False
@@ -176,7 +179,7 @@ def _regime_from_bench(bench_df: pd.DataFrame) -> str:
 REQUIRED_COLS = ("ticker", "buy_date", "buy_price", "quantity")
 OPTIONAL_COLS = ("stop_loss", "target", "signal_date", "sector", "notes")
 
-import re as _re
+
 _TICKER_ALLOWED = _re.compile(r"[^A-Z0-9&\-]")
 
 
@@ -960,7 +963,7 @@ def body():
         st.info("No open positions to analyze. Edit **positions.csv** and click Refresh.")
         with st.expander("Show positions.csv template"):
             try:
-                with open(POSITIONS_CSV, "r", encoding="utf-8") as f:
+                with open(POSITIONS_CSV, encoding="utf-8") as f:
                     st.code(f.read(), language="csv")
             except Exception as ex:
                 st.error(f"Can't read template: {ex}")
@@ -1143,7 +1146,7 @@ def body():
             events = r.get("events") or {}
             all_ev = events.get("all_upcoming") or []
             if all_ev:
-                st.markdown(f"**📅 Upcoming corporate events (next 30 days)**")
+                st.markdown("**📅 Upcoming corporate events (next 30 days)**")
                 ev_rows = [{
                     "Date":   str(e.get("date", "-")),
                     "Type":   e.get("type", "-"),

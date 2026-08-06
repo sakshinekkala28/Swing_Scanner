@@ -1,4 +1,4 @@
-name: Manual Swing Scanner Run
+name: Market Scan
 
 
 ###############################################################################
@@ -11,18 +11,9 @@ on:
 
     inputs:
 
-      pipeline_mode:
-
-        description: "Execution mode"
-
-        required: false
-
-        default: "full"
-
-
       period:
 
-        description: "Historical data period"
+        description: "Market data period"
 
         required: false
 
@@ -31,7 +22,7 @@ on:
 
       interval:
 
-        description: "Data interval"
+        description: "Market data interval"
 
         required: false
 
@@ -46,10 +37,10 @@ on:
 jobs:
 
 
-  manual-scan:
+  scan:
 
 
-    name: Manual Pipeline Execution
+    name: Execute Market Pipeline
 
 
     runs-on: ubuntu-latest
@@ -89,7 +80,7 @@ jobs:
 
 
       #########################################################################
-      # Install Dependencies
+      # Install
       #########################################################################
 
       - name: Install dependencies
@@ -103,48 +94,23 @@ jobs:
 
 
       #########################################################################
-      # Environment
+      # Execute Pipeline
       #########################################################################
 
-      - name: Set environment
-
-        run: |
-
-          echo "PIPELINE_MODE=${{ inputs.pipeline_mode }}" >> $GITHUB_ENV
-
-          echo "MARKET_PERIOD=${{ inputs.period }}" >> $GITHUB_ENV
-
-          echo "MARKET_INTERVAL=${{ inputs.interval }}" >> $GITHUB_ENV
-
-
-
-      #########################################################################
-      # Validation
-      #########################################################################
-
-      - name: Validate environment
-
-        run: |
-
-          python --version
-
-          python -c "import pandas; print('Environment OK')"
-
-
-
-      #########################################################################
-      # Execute
-      #########################################################################
-
-      - name: Run Swing Scanner
+      - name: Run scanner
 
         env:
 
+          MARKET_PERIOD: ${{ inputs.period }}
+
+          MARKET_INTERVAL: ${{ inputs.interval }}
+
           PYTHONUNBUFFERED: 1
+
 
         run: |
 
-          python -m workflows.market_pipeline
+          python -m workflows.run_pipeline
 
 
 
@@ -152,7 +118,7 @@ jobs:
       # Upload Results
       #########################################################################
 
-      - name: Upload results
+      - name: Upload artifacts
 
         if: always()
 
@@ -160,15 +126,13 @@ jobs:
 
         with:
 
-          name: manual-scan-results
+          name: market-scan-output
 
           path: |
 
             data/reports/
 
             data/exports/
-
-            data/cache/
 
             logs/
 

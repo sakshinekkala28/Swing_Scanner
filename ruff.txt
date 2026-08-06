@@ -1,0 +1,1286 @@
+E402 Module level import not at top of file
+  --> app/forward_validate_app.py:60:1
+   |
+58 | _spec.loader.exec_module(engine)
+59 |
+60 | from universe_loader import load_full_universe
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: Move module level imports to top of file
+
+E702 Multiple statements on one line (semicolon)
+   --> app/forward_validate_app.py:481:28
+    |
+480 |     # --- Scan each stock ---
+481 |     prog = st.progress(0.0); stat = st.empty()
+    |                            ^
+482 |     rows = []
+483 |     skipped_regime = 0
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/forward_validate_app.py:490:45
+    |
+488 |         if full.empty:
+489 |             rows.append({"ticker": sym, "status": "no data"})
+490 |             prog.progress((k+1)/len(subset)); continue
+    |                                             ^
+491 |         plan = scan_as_of(yahoo, full, strategy, p, bt_kwargs, cutoff, sector_map)
+492 |         # REGIME HARD-BLOCK (covers both RISK-OFF and NEUTRAL-decelerating)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/forward_validate_app.py:511:17
+    |
+509 |         rows.append(plan)
+510 |         prog.progress((k + 1) / len(subset))
+511 |     stat.empty(); prog.empty()
+    |                 ^
+512 |
+513 |     if skipped_regime:
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/forward_validate_app.py:561:30
+    |
+559 |         else:
+560 |             ret = r.get("actual_net_return_%", 0) or 0
+561 |             if ao == "TARGET": verdict = f"✅ TARGET ({ret:+.1f}%)"
+    |                              ^
+562 |             elif ao == "STOP": verdict = f"🔴 STOP ({ret:+.1f}%)"
+563 |             elif ret >= r.get("target_%", 15): verdict = f"✅ TIME beat ({ret:+.1f}%)"
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/forward_validate_app.py:562:30
+    |
+560 |             ret = r.get("actual_net_return_%", 0) or 0
+561 |             if ao == "TARGET": verdict = f"✅ TARGET ({ret:+.1f}%)"
+562 |             elif ao == "STOP": verdict = f"🔴 STOP ({ret:+.1f}%)"
+    |                              ^
+563 |             elif ret >= r.get("target_%", 15): verdict = f"✅ TIME beat ({ret:+.1f}%)"
+564 |             elif ret > 0: verdict = f"🟡 TIME win ({ret:+.1f}%)"
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/forward_validate_app.py:563:46
+    |
+561 |             if ao == "TARGET": verdict = f"✅ TARGET ({ret:+.1f}%)"
+562 |             elif ao == "STOP": verdict = f"🔴 STOP ({ret:+.1f}%)"
+563 |             elif ret >= r.get("target_%", 15): verdict = f"✅ TIME beat ({ret:+.1f}%)"
+    |                                              ^
+564 |             elif ret > 0: verdict = f"🟡 TIME win ({ret:+.1f}%)"
+565 |             else: verdict = f"🔴 TIME loss ({ret:+.1f}%)"
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/forward_validate_app.py:564:25
+    |
+562 |             elif ao == "STOP": verdict = f"🔴 STOP ({ret:+.1f}%)"
+563 |             elif ret >= r.get("target_%", 15): verdict = f"✅ TIME beat ({ret:+.1f}%)"
+564 |             elif ret > 0: verdict = f"🟡 TIME win ({ret:+.1f}%)"
+    |                         ^
+565 |             else: verdict = f"🔴 TIME loss ({ret:+.1f}%)"
+566 |         cmp_rows.append({
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/forward_validate_app.py:565:17
+    |
+563 |             elif ret >= r.get("target_%", 15): verdict = f"✅ TIME beat ({ret:+.1f}%)"
+564 |             elif ret > 0: verdict = f"🟡 TIME win ({ret:+.1f}%)"
+565 |             else: verdict = f"🔴 TIME loss ({ret:+.1f}%)"
+    |                 ^
+566 |         cmp_rows.append({
+567 |             "Stock": r["ticker"], "Sector": r.get("sector", "-"),
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/monitor_app.py:162:30
+    |
+160 |     above = last > s200
+161 |     roc10 = (c.iloc[-1] / c.iloc[-11] - 1) * 100 if len(c) > 11 else 0.0
+162 |     if above and roc10 > -1.0: return "RISK-ON"
+    |                              ^
+163 |     if above or roc10 > -3.0:  return "NEUTRAL"
+164 |     return "RISK-OFF"
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/monitor_app.py:163:29
+    |
+161 |     roc10 = (c.iloc[-1] / c.iloc[-11] - 1) * 100 if len(c) > 11 else 0.0
+162 |     if above and roc10 > -1.0: return "RISK-ON"
+163 |     if above or roc10 > -3.0:  return "NEUTRAL"
+    |                             ^
+164 |     return "RISK-OFF"
+    |
+
+E402 Module level import not at top of file
+   --> app/monitor_app.py:180:1
+    |
+178 | OPTIONAL_COLS = ("stop_loss", "target", "signal_date", "sector", "notes")
+179 |
+180 | import re as _re
+    | ^^^^^^^^^^^^^^^^
+181 |
+182 | _TICKER_ALLOWED = _re.compile(r"[^A-Z0-9&\-]")
+    |
+help: Move module level imports to top of file
+
+B905 `zip()` without an explicit `strict=` parameter
+   --> app/monitor_app.py:260:47
+    |
+258 |     original_tickers = df["ticker"].astype(str).copy()
+259 |     df["ticker"] = original_tickers.apply(_clean_ticker)
+260 |     cleaned_map = {orig: new for orig, new in zip(original_tickers, df["ticker"])
+    |                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+261 |                    if orig.strip() != new and new}
+262 |     if cleaned_map:
+    |
+help: Add explicit value for parameter `strict=`
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:501:23
+    |
+499 |         rsi = ta["rsi14"]
+500 |         if rsi > 70:
+501 |             v = "WARN"; ta_score -= 1
+    |                       ^
+502 |             note = "overbought — susceptible to pullback"
+503 |         elif rsi < 40 and _has("rsi_max_10d") and ta["rsi_max_10d"] > 60:
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:504:23
+    |
+502 |             note = "overbought — susceptible to pullback"
+503 |         elif rsi < 40 and _has("rsi_max_10d") and ta["rsi_max_10d"] > 60:
+504 |             v = "FAIL"; ta_score -= 3
+    |                       ^
+505 |             note = f"momentum broke — peaked at {ta['rsi_max_10d']:.0f}"
+506 |         elif rsi < 30:
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:507:23
+    |
+505 |             note = f"momentum broke — peaked at {ta['rsi_max_10d']:.0f}"
+506 |         elif rsi < 30:
+507 |             v = "WARN"; ta_score -= 1
+    |                       ^
+508 |             note = "oversold — could be exhaustion or capitulation"
+509 |         else:
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:510:23
+    |
+508 |             note = "oversold — could be exhaustion or capitulation"
+509 |         else:
+510 |             v = "PASS"; ta_score += 1
+    |                       ^
+511 |             note = "in healthy range"
+512 |         checks.append(_mk_check("ta", "RSI(14)", f"{rsi:.1f}", v, note))
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:518:23
+    |
+516 |         m, mp = ta["macd_hist"], ta["macd_hist_prev"]
+517 |         if m < 0 and mp < 0:
+518 |             v = "FAIL"; ta_score -= 3
+    |                       ^
+519 |             note = "negative 2 sessions — trend momentum broken"
+520 |         elif m < 0:
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:521:23
+    |
+519 |             note = "negative 2 sessions — trend momentum broken"
+520 |         elif m < 0:
+521 |             v = "WARN"; ta_score -= 1
+    |                       ^
+522 |             note = "just flipped negative — 1st bar"
+523 |         else:
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:524:23
+    |
+522 |             note = "just flipped negative — 1st bar"
+523 |         else:
+524 |             v = "PASS"; ta_score += 1
+    |                       ^
+525 |             note = "positive — momentum with the trend"
+526 |         checks.append(_mk_check("ta", "MACD histogram",
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:533:23
+    |
+531 |         p20, vr = ta["pct_vs_sma20"], ta["vol_ratio"]
+532 |         if p20 < -1 and vr > 1.2:
+533 |             v = "FAIL"; ta_score -= 3
+    |                       ^
+534 |             note = f"broke 20-DMA on heavy {vr:.1f}× volume — real distribution"
+535 |         elif p20 < -1:
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:536:23
+    |
+534 |             note = f"broke 20-DMA on heavy {vr:.1f}× volume — real distribution"
+535 |         elif p20 < -1:
+536 |             v = "WARN"; ta_score -= 1
+    |                       ^
+537 |             note = "below 20-DMA but light volume — may recover"
+538 |         elif p20 > 0:
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:539:23
+    |
+537 |             note = "below 20-DMA but light volume — may recover"
+538 |         elif p20 > 0:
+539 |             v = "PASS"; ta_score += 1
+    |                       ^
+540 |             note = "above short trend — continuation intact"
+541 |         else:
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:542:23
+    |
+540 |             note = "above short trend — continuation intact"
+541 |         else:
+542 |             v = "WARN"; ta_score += 0
+    |                       ^
+543 |             note = "under 20-DMA but not yet decisive"
+544 |         checks.append(_mk_check("ta", "Price vs 20-DMA",
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:551:23
+    |
+549 |         p50 = ta["pct_vs_sma50"]
+550 |         if p50 < 0 and pnl_pct < 0:
+551 |             v = "FAIL"; ta_score -= 2
+    |                       ^
+552 |             note = "below 50-DMA AND in loss — trend breakdown confirmed"
+553 |         elif p50 < 0:
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:554:23
+    |
+552 |             note = "below 50-DMA AND in loss — trend breakdown confirmed"
+553 |         elif p50 < 0:
+554 |             v = "WARN"; ta_score -= 1
+    |                       ^
+555 |             note = "below 50-DMA but still net-up — trend weakening"
+556 |         else:
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:557:23
+    |
+555 |             note = "below 50-DMA but still net-up — trend weakening"
+556 |         else:
+557 |             v = "PASS"; ta_score += 1
+    |                       ^
+558 |             note = "above intermediate trend"
+559 |         checks.append(_mk_check("ta", "Price vs 50-DMA",
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:566:23
+    |
+564 |         p200 = ta["pct_vs_sma200"]
+565 |         if p200 < 0:
+566 |             v = "WARN"; ta_score -= 1
+    |                       ^
+567 |             note = "below 200-DMA — long-term trend is DOWN"
+568 |         elif p200 > 15:
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:572:23
+    |
+570 |             note = "extended > 15% above 200-DMA — mean-reversion risk"
+571 |         else:
+572 |             v = "PASS"; ta_score += 1
+    |                       ^
+573 |             note = "in healthy uptrend zone"
+574 |         checks.append(_mk_check("ta", "Price vs 200-DMA",
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:581:23
+    |
+579 |         adx = ta["adx14"]
+580 |         if adx >= 25:
+581 |             v = "PASS"; ta_score += 1
+    |                       ^
+582 |             note = "strong directional trend"
+583 |         elif adx >= 20:
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/monitor_app.py:669:15
+    |
+667 |             f"deliver -15 to -40% moves. Exit even if technicals still look OK."
+668 |         )
+669 |         if top: narrative.append(f'Top headline: "{top}"')
+    |               ^
+670 |         return dict(action=action, urgency=urgency, pnl_pct=pnl_pct, pnl_abs=pnl_abs,
+671 |                     days_held=days_held, new_stop=None, add_qty=0,
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/monitor_app.py:703:15
+    |
+701 |             f"reduce exposure. Book roughly half; reassess in 2-3 sessions."
+702 |         )
+703 |         if top: narrative.append(f'Top: "{top}"')
+    |               ^
+704 |         return dict(action="REDUCE", urgency="normal", pnl_pct=pnl_pct, pnl_abs=pnl_abs,
+705 |                     days_held=days_held, new_stop=None,
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/monitor_app.py:772:15
+    |
+770 |             f"sentiment {ns:+.2f}. Reinforces the HOLD."
+771 |         )
+772 |         if top: narrative.append(f'Top: "{top}"')
+    |               ^
+773 |
+774 |     # 1 breakdown while in profit — WATCH
+    |
+
+SIM105 Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`
+   --> app/monitor_app.py:877:9
+    |
+875 |               "matched_terms": [], "all_headlines": []}
+876 |       if use_news and HAVE_NEWS:
+877 | /         try:
+878 | |             news = _news_score(ty)
+879 | |         except Exception:
+880 | |             pass
+    | |________________^
+881 |
+882 |       # Events
+    |
+help: Replace `try`-`except`-`pass` with `with contextlib.suppress(Exception): ...`
+
+SIM105 Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`
+   --> app/monitor_app.py:886:9
+    |
+884 |                 "subject": None, "all_upcoming": []}
+885 |       if use_events and HAVE_EVENTS:
+886 | /         try:
+887 | |             events = _event_risk(ticker_bare, next_sessions=5)
+888 | |         except Exception:
+889 | |             pass
+    | |________________^
+890 |
+891 |       decision = decide(position, ta, news, events, regime)
+    |
+help: Replace `try`-`except`-`pass` with `with contextlib.suppress(Exception): ...`
+
+E702 Multiple statements on one line (semicolon)
+   --> app/monitor_app.py:992:28
+    |
+990 |     # ---- Analyze each position ----
+991 |     results = []
+992 |     prog = st.progress(0.0); status = st.empty()
+    |                            ^
+993 |     for k, (_, pos) in enumerate(positions.iterrows(), 1):
+994 |         status.write(f"Analyzing {pos['ticker']} ({k}/{len(positions)})...")
+    |
+
+E702 Multiple statements on one line (semicolon)
+    --> app/monitor_app.py:999:19
+     |
+ 997 |         prog.progress(k / len(positions))
+ 998 |         time.sleep(0.1)
+ 999 |     status.empty(); prog.empty()
+     |                   ^
+1000 |
+1001 |     # ---- Summary table ----
+     |
+
+E701 Multiple statements on one line (colon)
+    --> app/monitor_app.py:1076:36
+     |
+1074 |             # ---- Provenance line ----
+1075 |             src_bits = []
+1076 |             if r.get("stop_source"): src_bits.append(f"stop: {r['stop_source']}")
+     |                                    ^
+1077 |             if r.get("sector_source"): src_bits.append(f"sector: {r['sector_source']}")
+1078 |             if src_bits:
+     |
+
+E701 Multiple statements on one line (colon)
+    --> app/monitor_app.py:1077:38
+     |
+1075 |             src_bits = []
+1076 |             if r.get("stop_source"): src_bits.append(f"stop: {r['stop_source']}")
+1077 |             if r.get("sector_source"): src_bits.append(f"sector: {r['sector_source']}")
+     |                                      ^
+1078 |             if src_bits:
+1079 |                 st.caption("Data source — " + " · ".join(src_bits))
+     |
+
+B905 `zip()` without an explicit `strict=` parameter
+  --> app/pages/03_Backtest.py:59:30
+   |
+57 |       )[:4]
+58 |
+59 |       for col, (key, value) in zip(
+   |  ______________________________^
+60 | |         cols,
+61 | |         metrics,
+62 | |     ):
+   | |_____^
+63 |
+64 |           with col:
+   |
+help: Add explicit value for parameter `strict=`
+
+E402 Module level import not at top of file
+  --> app/swing_scanner_app.py:79:1
+   |
+78 |   # --- Fundamental "no-trade" gate ---
+79 | / from screeners.fundamental_screen import (
+80 | |     DEFAULT_FUNDA_CONFIG,
+81 | | )
+   | |_^
+82 |   from screeners.fundamental_screen import (
+83 |       rejects_to_dataframe as fs_rejects_df,
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> app/swing_scanner_app.py:82:1
+   |
+80 |       DEFAULT_FUNDA_CONFIG,
+81 |   )
+82 | / from screeners.fundamental_screen import (
+83 | |     rejects_to_dataframe as fs_rejects_df,
+84 | | )
+   | |_^
+85 |   from screeners.fundamental_screen import (
+86 |       screen_universe as fs_screen_universe,
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> app/swing_scanner_app.py:85:1
+   |
+83 |       rejects_to_dataframe as fs_rejects_df,
+84 |   )
+85 | / from screeners.fundamental_screen import (
+86 | |     screen_universe as fs_screen_universe,
+87 | | )
+   | |_^
+88 |   from screeners.fundamental_screen import (
+89 |       summarize_results as fs_summarize,
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> app/swing_scanner_app.py:88:1
+   |
+86 |       screen_universe as fs_screen_universe,
+87 |   )
+88 | / from screeners.fundamental_screen import (
+89 | |     summarize_results as fs_summarize,
+90 | | )
+   | |_^
+91 |
+92 |   # --- News & Event risk (Aug-2026) ---
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+   --> app/swing_scanner_app.py:101:1
+    |
+100 | # --- Universe loader: chained live sources + 24h disk cache (no CSV maintenance) ---
+101 | from scanner.data.universe_loader import load_full_universe as _ul_load
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+102 |
+103 | try:
+    |
+help: Move module level imports to top of file
+
+E701 Multiple statements on one line (colon)
+   --> app/swing_scanner_app.py:384:30
+    |
+383 |     score = 0
+384 |     if idx_state == "RISK-ON":  score += 1
+    |                              ^
+385 |     elif idx_state == "RISK-OFF": score -= 1
+386 |     # H8: only score breadth when the sample is large enough to trust it
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/swing_scanner_app.py:385:33
+    |
+383 |     score = 0
+384 |     if idx_state == "RISK-ON":  score += 1
+385 |     elif idx_state == "RISK-OFF": score -= 1
+    |                                 ^
+386 |     # H8: only score breadth when the sample is large enough to trust it
+387 |     if br_significant:
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/swing_scanner_app.py:388:28
+    |
+386 |     # H8: only score breadth when the sample is large enough to trust it
+387 |     if br_significant:
+388 |         if br == "POSITIVE": score += 1
+    |                            ^
+389 |         elif br == "NEGATIVE": score -= 1
+390 |     if seg_below: score -= 1                    # your universe's own segment is in a downtrend
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/swing_scanner_app.py:389:30
+    |
+387 |     if br_significant:
+388 |         if br == "POSITIVE": score += 1
+389 |         elif br == "NEGATIVE": score -= 1
+    |                              ^
+390 |     if seg_below: score -= 1                    # your universe's own segment is in a downtrend
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/swing_scanner_app.py:390:17
+    |
+388 |         if br == "POSITIVE": score += 1
+389 |         elif br == "NEGATIVE": score -= 1
+390 |     if seg_below: score -= 1                    # your universe's own segment is in a downtrend
+    |                 ^
+391 |
+392 |     # H8: veto only when breadth is negative AND statistically significant
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/swing_scanner_app.py:540:24
+    |
+538 |     bb_pctb = _f("bb_pctB", 50.0)
+539 |     if rsi_now > 70:
+540 |         ext_pen *= 0.80; penalty_bits.append(f"RSI {rsi_now:.0f}")
+    |                        ^
+541 |     if pct_20 > 8:
+542 |         ext_pen *= 0.85; penalty_bits.append(f"+{pct_20:.1f}% vs 20DMA")
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/swing_scanner_app.py:542:24
+    |
+540 |         ext_pen *= 0.80; penalty_bits.append(f"RSI {rsi_now:.0f}")
+541 |     if pct_20 > 8:
+542 |         ext_pen *= 0.85; penalty_bits.append(f"+{pct_20:.1f}% vs 20DMA")
+    |                        ^
+543 |     if dist52 > -2:
+544 |         ext_pen *= 0.85; penalty_bits.append(f"{dist52:+.1f}% from 52wH")
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/swing_scanner_app.py:544:24
+    |
+542 |         ext_pen *= 0.85; penalty_bits.append(f"+{pct_20:.1f}% vs 20DMA")
+543 |     if dist52 > -2:
+544 |         ext_pen *= 0.85; penalty_bits.append(f"{dist52:+.1f}% from 52wH")
+    |                        ^
+545 |     if bb_pctb > 90:
+546 |         ext_pen *= 0.85; penalty_bits.append(f"BB%B {bb_pctb:.0f}")
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/swing_scanner_app.py:546:24
+    |
+544 |         ext_pen *= 0.85; penalty_bits.append(f"{dist52:+.1f}% from 52wH")
+545 |     if bb_pctb > 90:
+546 |         ext_pen *= 0.85; penalty_bits.append(f"BB%B {bb_pctb:.0f}")
+    |                        ^
+547 |     if not signals_today:
+548 |         penalty_bits.append("stale (no signal today)")
+    |
+
+F601 Dictionary key literal `"seq_trades"` repeated
+   --> app/swing_scanner_app.py:613:9
+    |
+611 |         "recovery_factor": stats.get("recovery_factor", np.nan),
+612 |         "max_consecutive_losses": stats.get("max_consecutive_losses", np.nan),
+613 |         "seq_trades": stats.get("seq_trades", np.nan),
+    |         ^^^^^^^^^^^^
+614 |         "rel_strength": rel_strength, "rank_score": rank_score,
+615 |         # --- breadth inputs (free: computed from data already fetched) ---
+    |
+help: Remove repeated key literal `"seq_trades"`
+
+E702 Multiple statements on one line (semicolon)
+    --> app/swing_scanner_app.py:1284:38
+     |
+1282 |                     "(24h cached — reruns are instant)...")
+1283 |             tickers_yahoo = [to_yahoo(s) for s in tickers[:max_n]]
+1284 |             f_prog = st.progress(0.0); f_stat = st.empty()
+     |                                      ^
+1285 |
+1286 |             def _fund_cb(k, n, sym):
+     |
+
+E702 Multiple statements on one line (semicolon)
+    --> app/swing_scanner_app.py:1293:27
+     |
+1291 |                 tickers_yahoo, sector_map, funda_cfg, _fund_cb
+1292 |             )
+1293 |             f_stat.empty(); f_prog.empty()
+     |                           ^
+1294 |
+1295 |             passing_bare = {t for t, r in funda_results.items()
+     |
+
+E702 Multiple statements on one line (semicolon)
+    --> app/swing_scanner_app.py:1324:23
+     |
+1322 |             prog.progress((k + 1) / len(run_list))
+1323 |             time.sleep(0.05)
+1324 |         status.empty(); prog.empty()
+     |                       ^
+1325 |
+1326 |         # ================== NEWS & EVENT-RISK PASS  🆕 (Aug-2026) =========
+     |
+
+E702 Multiple statements on one line (semicolon)
+    --> app/swing_scanner_app.py:1338:42
+     |
+1336 |             signal_rows = [r for r in rows if r.get("status") == "ok"]
+1337 |             if signal_rows:
+1338 |                 n_prog = st.progress(0.0); n_stat = st.empty()
+     |                                          ^
+1339 |                 for k, r in enumerate(signal_rows):
+1340 |                     tk_bare = r["ticker"]
+     |
+
+E702 Multiple statements on one line (semicolon)
+    --> app/swing_scanner_app.py:1373:46
+     |
+1371 |                         r["rank_score"] = round(r["rank_score"] * (1.0 + tilt), 2)
+1372 |                     else:
+1373 |                         r["news_score"] = 0.0; r["news_n"] = 0
+     |                                              ^
+1374 |                         r["news_top"] = None; r["news_matched"] = ""
+1375 |                     n_prog.progress((k + 1) / len(signal_rows))
+     |
+
+E702 Multiple statements on one line (semicolon)
+    --> app/swing_scanner_app.py:1374:45
+     |
+1372 |                     else:
+1373 |                         r["news_score"] = 0.0; r["news_n"] = 0
+1374 |                         r["news_top"] = None; r["news_matched"] = ""
+     |                                             ^
+1375 |                     n_prog.progress((k + 1) / len(signal_rows))
+1376 |                 n_stat.empty(); n_prog.empty()
+     |
+
+E702 Multiple statements on one line (semicolon)
+    --> app/swing_scanner_app.py:1376:31
+     |
+1374 |                         r["news_top"] = None; r["news_matched"] = ""
+1375 |                     n_prog.progress((k + 1) / len(signal_rows))
+1376 |                 n_stat.empty(); n_prog.empty()
+     |                               ^
+1377 |                 blocked_ct = sum(1 for r in signal_rows if r.get("event_blocked"))
+1378 |                 if blocked_ct:
+     |
+
+E731 Do not assign a `lambda` expression, use a `def`
+    --> app/swing_scanner_app.py:1498:9
+     |
+1496 |                      help="Trades that failed at least one condition at entry "
+1497 |                           "and were routed to fixed target.")
+1498 |         _mean = lambda d: (d["net_return_%"].mean() if len(d) else float("nan"))
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1499 |         _win  = lambda d: (100*(d["net_return_%"]>0).mean() if len(d) else float("nan"))
+1500 |         r1[2].metric("Trailing avg / win%",
+     |
+help: Rewrite `_mean` as a `def`
+
+E731 Do not assign a `lambda` expression, use a `def`
+    --> app/swing_scanner_app.py:1499:9
+     |
+1497 |                           "and were routed to fixed target.")
+1498 |         _mean = lambda d: (d["net_return_%"].mean() if len(d) else float("nan"))
+1499 |         _win  = lambda d: (100*(d["net_return_%"]>0).mean() if len(d) else float("nan"))
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1500 |         r1[2].metric("Trailing avg / win%",
+1501 |                      f'{_mean(tr):+.2f}% / {_win(tr):.0f}%' if len(tr) else "—")
+     |
+help: Rewrite `_win` as a `def`
+
+F841 Local variable `event_blocked_df` is assigned to but never used
+    --> app/swing_scanner_app.py:1675:13
+     |
+1673 |         event_blocked_df = pd.DataFrame()
+1674 |         if "event_blocked" in cand.columns and cand["event_blocked"].any():
+1675 |             event_blocked_df = cand[cand["event_blocked"]].copy()
+     |             ^^^^^^^^^^^^^^^^
+1676 |             cand = cand[~cand["event_blocked"]].copy()
+     |
+help: Remove assignment to unused variable `event_blocked_df`
+
+E712 Avoid equality comparisons to `True`; use `res["event_blocked"]:` for truth checks
+    --> app/swing_scanner_app.py:1908:29
+     |
+1906 |         ev_blocked = res[(res["status"] == "ok")
+1907 |                          & (res.get("signals_today", False))
+1908 |                          & (res["event_blocked"] == True)].copy()
+     |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1909 |     else:
+1910 |         ev_blocked = pd.DataFrame()
+     |
+help: Replace with `res["event_blocked"]`
+
+E712 Avoid equality comparisons to `True`; use `res["cooldown_blocked"]:` for truth checks
+    --> app/swing_scanner_app.py:1937:53
+     |
+1935 |     # SAW the signal but declined to act on it (and why).
+1936 |     if "cooldown_blocked" in res.columns:
+1937 |         cd_blocked = res[(res["status"] == "ok") & (res["cooldown_blocked"] == True)].copy()
+     |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1938 |         if not cd_blocked.empty:
+1939 |             with st.expander(f"❄️ {len(cd_blocked)} stock(s) blocked by post-stop cooldown "
+     |
+help: Replace with `res["cooldown_blocked"]`
+
+E741 Ambiguous variable name: `l`
+  --> app/swing_screener_app.py:55:11
+   |
+53 | def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
+54 |     df = df.copy()
+55 |     o, h, l, c, v = df["Open"], df["High"], df["Low"], df["Close"], df["Volume"]
+   |           ^
+56 |
+57 |     # --- Trend / moving averages ---
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> app/swing_screener_app.py:89:22
+   |
+88 |     # --- Bollinger(20,2) ---
+89 |     mid = _sma(c, 20); sd = c.rolling(20).std()
+   |                      ^
+90 |     upper, lower = mid + 2 * sd, mid - 2 * sd
+91 |     df["bb_pctB"] = (c - lower) / (upper - lower) * 100
+   |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/swing_screener_app.py:110:32
+    |
+108 |     df["high20"] = h.rolling(20).max().shift(1)
+109 |     df["breakout20"] = (c > df["high20"]).astype(int)
+110 |     hi52 = h.rolling(252).max(); lo52 = l.rolling(252).min()
+    |                                ^
+111 |     df["dist_52wH"] = (c / hi52 - 1) * 100
+112 |     df["dist_52wL"] = (c / lo52 - 1) * 100
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/swing_screener_app.py:122:18
+    |
+121 |     # --- ADX(14) ---
+122 |     up = h.diff(); dn = -l.diff()
+    |                  ^
+123 |     plus_dm = np.where((up > dn) & (up > 0), up, 0.0)
+124 |     minus_dm = np.where((dn > up) & (dn > 0), dn, 0.0)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/swing_screener_app.py:396:26
+    |
+394 |                  # Oct-Nov 2024, TCS Mar-Apr 2024). Set to 0 to disable.
+395 |                  post_stop_cooldown_days: int = 7) -> pd.DataFrame:
+396 |     o = df["Open"].values; h = df["High"].values
+    |                          ^
+397 |     l = df["Low"].values; c = df["Close"].values
+398 |     v = df["Volume"].values if "Volume" in df.columns else np.zeros(len(df))
+    |
+
+E741 Ambiguous variable name: `l`
+   --> app/swing_screener_app.py:397:5
+    |
+395 |                  post_stop_cooldown_days: int = 7) -> pd.DataFrame:
+396 |     o = df["Open"].values; h = df["High"].values
+397 |     l = df["Low"].values; c = df["Close"].values
+    |     ^
+398 |     v = df["Volume"].values if "Volume" in df.columns else np.zeros(len(df))
+399 |     atr = df["atr14"].values
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> app/swing_screener_app.py:397:25
+    |
+395 |                  post_stop_cooldown_days: int = 7) -> pd.DataFrame:
+396 |     o = df["Open"].values; h = df["High"].values
+397 |     l = df["Low"].values; c = df["Close"].values
+    |                         ^
+398 |     v = df["Volume"].values if "Volume" in df.columns else np.zeros(len(df))
+399 |     atr = df["atr14"].values
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/swing_screener_app.py:561:32
+    |
+559 |                 # Compact reason: 4-char failure map (a=adx,s=slope,d=dist,v=vol)
+560 |                 fails = []
+561 |                 if not cond_adx:   fails.append(f"adx={adx_val:.0f}")
+    |                                ^
+562 |                 if not cond_slope: fails.append("sma200_flat")
+563 |                 if not cond_dist:  fails.append(f"dist={dist_val:.1f}")
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/swing_screener_app.py:562:34
+    |
+560 |                 fails = []
+561 |                 if not cond_adx:   fails.append(f"adx={adx_val:.0f}")
+562 |                 if not cond_slope: fails.append("sma200_flat")
+    |                                  ^
+563 |                 if not cond_dist:  fails.append(f"dist={dist_val:.1f}")
+564 |                 if not cond_vol:   fails.append(f"vol_{vol_source}")
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/swing_screener_app.py:563:33
+    |
+561 |                 if not cond_adx:   fails.append(f"adx={adx_val:.0f}")
+562 |                 if not cond_slope: fails.append("sma200_flat")
+563 |                 if not cond_dist:  fails.append(f"dist={dist_val:.1f}")
+    |                                 ^
+564 |                 if not cond_vol:   fails.append(f"vol_{vol_source}")
+565 |                 route_reason = "chop:" + "|".join(fails) if fails else "chop"
+    |
+
+E701 Multiple statements on one line (colon)
+   --> app/swing_screener_app.py:564:32
+    |
+562 |                 if not cond_slope: fails.append("sma200_flat")
+563 |                 if not cond_dist:  fails.append(f"dist={dist_val:.1f}")
+564 |                 if not cond_vol:   fails.append(f"vol_{vol_source}")
+    |                                ^
+565 |                 route_reason = "chop:" + "|".join(fails) if fails else "chop"
+    |
+
+F841 Local variable `atr_dist` is assigned to but never used
+   --> app/swing_screener_app.py:592:9
+    |
+590 |             floor_stop = entry * (1 - max_stop_pct / 100)
+591 |             init_stop = max(init_stop, floor_stop)   # pull a too-wide stop closer
+592 |         atr_dist = entry - init_stop           # trailing distance = actual risk distance
+    |         ^^^^^^^^
+593 |
+594 |         last = min(entry_idx + max_hold, n - 1)
+    |
+help: Remove assignment to unused variable `atr_dist`
+
+E702 Multiple statements on one line (semicolon)
+   --> app/swing_screener_app.py:643:32
+    |
+641 |             if day_k < min_hold:
+642 |                 if h[d] > peak:
+643 |                     peak = h[d]; days_since_high = 0
+    |                                ^
+644 |                 else:
+645 |                     days_since_high += 1
+    |
+
+SIM102 Use a single `if` statement instead of nested `if` statements
+   --> app/swing_screener_app.py:821:21
+    |
+820 |                       # C3: Two down closes on heavy volume (>= 1.5x avg)
+821 | /                     if not exhausted and d >= 2:
+822 | |                         if c[d] < c[d - 1] and c[d - 1] < c[d - 2]:
+    | |___________________________________________________________________^
+823 |                               vr = vratio_arr[d]
+824 |                               if np.isfinite(vr) and vr >= 1.5:
+    |
+help: Combine `if` statements using `and`
+
+F841 Local variable `mom_reason` is assigned to but never used
+   --> app/swing_screener_app.py:839:40
+    |
+837 |                         s5 = sma5_arr[d]
+838 |                         if np.isfinite(s5) and c[d] < s5:
+839 |                             exhausted, mom_reason = True, "5-DMA break"
+    |                                        ^^^^^^^^^^
+840 |
+841 |                     if exhausted:
+    |
+help: Remove assignment to unused variable `mom_reason`
+
+B007 Loop control variable `fy_val` not used within loop body
+   --> app/swing_screener_app.py:993:9
+    |
+991 |     fy = ex.dt.year.where(ex.dt.month >= 4, ex.dt.year - 1)
+992 |     t["_fy"] = fy.values
+993 |     for fy_val, sub_idx in t.groupby("_fy").groups.items():
+    |         ^^^^^^
+994 |         fy_net = float(t.loc[sub_idx, "net_return_%"].sum())
+995 |         if fy_net <= 0:
+    |
+help: Rename unused `fy_val` to `_fy_val`
+
+F841 Local variable `final_mult_local` is assigned to but never used
+    --> app/swing_screener_app.py:1067:9
+     |
+1065 |     else:
+1066 |         years = years_raw
+1067 |         final_mult_local = float(eq[-1])
+     |         ^^^^^^^^^^^^^^^^
+1068 |         # (cagr computed below using `years` and final_mult)
+1069 |     final_mult = float(eq[-1])
+     |
+help: Remove assignment to unused variable `final_mult_local`
+
+F841 Local variable `entry` is assigned to but never used
+   --> engine/backtest.py:258:13
+    |
+256 |         for index, row in dataframe.iterrows():
+257 |
+258 |             entry = row["ENTRY_PRICE"]
+    |             ^^^^^
+259 |
+260 |             stop = row["STOP_PRICE"]
+    |
+help: Remove assignment to unused variable `entry`
+
+E402 Module level import not at top of file
+  --> engine/governance_fetcher.py:65:1
+   |
+63 | # ============================================================================
+64 | PARSER_VERSION = "AUG-2026-PLEDGE-FIX-V2-BULLET-REGEX"
+65 | import argparse
+   | ^^^^^^^^^^^^^^^
+66 | import io
+67 | import json
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> engine/governance_fetcher.py:66:1
+   |
+64 | PARSER_VERSION = "AUG-2026-PLEDGE-FIX-V2-BULLET-REGEX"
+65 | import argparse
+66 | import io
+   | ^^^^^^^^^
+67 | import json
+68 | import random
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> engine/governance_fetcher.py:67:1
+   |
+65 | import argparse
+66 | import io
+67 | import json
+   | ^^^^^^^^^^^
+68 | import random
+69 | import re
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> engine/governance_fetcher.py:68:1
+   |
+66 | import io
+67 | import json
+68 | import random
+   | ^^^^^^^^^^^^^
+69 | import re
+70 | import time
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> engine/governance_fetcher.py:69:1
+   |
+67 | import json
+68 | import random
+69 | import re
+   | ^^^^^^^^^
+70 | import time
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> engine/governance_fetcher.py:70:1
+   |
+68 | import random
+69 | import re
+70 | import time
+   | ^^^^^^^^^^^
+71 |
+72 | import numpy as np
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> engine/governance_fetcher.py:72:1
+   |
+70 | import time
+71 |
+72 | import numpy as np
+   | ^^^^^^^^^^^^^^^^^^
+73 | import pandas as pd
+   |
+help: Move module level imports to top of file
+
+E402 Module level import not at top of file
+  --> engine/governance_fetcher.py:73:1
+   |
+72 | import numpy as np
+73 | import pandas as pd
+   | ^^^^^^^^^^^^^^^^^^^
+74 |
+75 | try:
+   |
+help: Move module level imports to top of file
+
+F841 Local variable `primary_table_found` is assigned to but never used
+   --> engine/governance_fetcher.py:398:9
+    |
+396 |                     continue
+397 |                 out[f"{our_key}_delta_qoq"] = round(cur - prv, 2)
+398 |         primary_table_found = True
+    |         ^^^^^^^^^^^^^^^^^^^
+399 |         break                                  # only ONE primary composition table
+    |
+help: Remove assignment to unused variable `primary_table_found`
+
+SIM105 Use `contextlib.suppress(ValueError)` instead of `try`-`except`-`pass`
+   --> engine/governance_fetcher.py:409:9
+    |
+407 |       m = _PLEDGE_BULLET_RE.search(html)
+408 |       if m:
+409 | /         try:
+410 | |             out["promoter_pledge_pct"] = round(float(m.group(1)), 2)
+411 | |         except ValueError:
+412 | |             pass
+    | |________________^
+413 |       elif "promoter_holding_pct" in out:
+414 |           # ---- Pass 2b: infer zero when bullet is absent ----
+    |
+help: Replace `try`-`except`-`pass` with `with contextlib.suppress(ValueError): ...`
+
+E702 Multiple statements on one line (semicolon)
+   --> engine/governance_fetcher.py:728:17
+    |
+727 |     result = refresh_governance_overrides(tickers, force_refresh, _cb)
+728 |     prog.empty(); stat.empty()
+    |                 ^
+729 |     if result["refreshed"] or result["from_cache"]:
+730 |         st.success(
+    |
+
+B023 Function definition does not bind loop variable `period`
+   --> engine/indicators.py:328:40
+    |
+326 |                         lambda x: talib.EMA(
+327 |                             x.to_numpy(),
+328 |                             timeperiod=period,
+    |                                        ^^^^^^
+329 |                         )
+330 |                     )
+    |
+
+B023 Function definition does not bind loop variable `period`
+   --> engine/indicators.py:343:36
+    |
+341 |                         lambda x: ta.ema(
+342 |                             x,
+343 |                             length=period,
+    |                                    ^^^^^^
+344 |                         )
+345 |                     )
+    |
+
+B023 Function definition does not bind loop variable `period`
+   --> engine/indicators.py:375:40
+    |
+373 |                         lambda x: talib.SMA(
+374 |                             x.to_numpy(),
+375 |                             timeperiod=period,
+    |                                        ^^^^^^
+376 |                         )
+377 |                     )
+    |
+
+B023 Function definition does not bind loop variable `period`
+   --> engine/indicators.py:390:36
+    |
+388 |                         lambda x: ta.sma(
+389 |                             x,
+390 |                             length=period,
+    |                                    ^^^^^^
+391 |                         )
+392 |                     )
+    |
+
+F811 Redefinition of unused `summary` from line 1330
+    --> engine/indicators.py:1417:9
+     |
+1415 |     ###########################################################################
+1416 |
+1417 |     def summary(
+     |         ^^^^^^^ `summary` redefined here
+1418 |         self,
+1419 |     ) -> dict[str, Any]:
+     |
+    ::: engine/indicators.py:1330:9
+     |
+1328 |     ###############################################################################
+1329 |
+1330 |     def summary(
+     |         ------- previous definition of `summary` here
+1331 |         self,
+1332 |     ) -> dict[str, Any]:
+     |
+help: Remove definition: `summary`
+
+SIM105 Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`
+   --> engine/news_sentiment.py:144:13
+    |
+142 |           pub_dt = None
+143 |           if isinstance(ts_raw, str) and ts_raw:
+144 | /             try:
+145 | |                 pub_dt = dt.datetime.fromisoformat(ts_raw.replace("Z", "+00:00"))
+146 | |             except Exception:
+147 | |                 pass
+    | |____________________^
+148 |           elif isinstance(ts_raw, (int, float)):
+149 |               try:
+    |
+help: Replace `try`-`except`-`pass` with `with contextlib.suppress(Exception): ...`
+
+SIM105 Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`
+   --> engine/news_sentiment.py:149:13
+    |
+147 |                   pass
+148 |           elif isinstance(ts_raw, (int, float)):
+149 | /             try:
+150 | |                 pub_dt = dt.datetime.fromtimestamp(float(ts_raw))
+151 | |             except Exception:
+152 | |                 pass
+    | |____________________^
+153 |           if title:
+154 |               out.append({"title": title.strip(), "date": pub_dt, "source": "yfinance"})
+    |
+help: Replace `try`-`except`-`pass` with `with contextlib.suppress(Exception): ...`
+
+SIM105 Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`
+   --> engine/news_sentiment.py:191:13
+    |
+189 |           pub_dt = None
+190 |           if pm:
+191 | /             try:
+192 | |                 pub_dt = dt.datetime.strptime(pm.group(1)[:25], "%a, %d %b %Y %H:%M:%S")
+193 | |             except Exception:
+194 | |                 pass
+    | |____________________^
+195 |           out.append({"title": title, "date": pub_dt, "source": "google"})
+196 |       return out
+    |
+help: Replace `try`-`except`-`pass` with `with contextlib.suppress(Exception): ...`
+
+F821 Undefined name `copy2`
+    --> engine/storage.py:1119:13
+     |
+1117 |         ):
+1118 |
+1119 |             copy2(
+     |             ^^^^^
+1120 |                 file,
+1121 |                 archive / file.name,
+     |
+
+F821 Undefined name `copytree`
+    --> engine/storage.py:1167:13
+     |
+1165 |         if item.is_dir():
+1166 |
+1167 |             copytree(
+     |             ^^^^^^^^
+1168 |                 item,
+1169 |                 destination,
+     |
+
+F821 Undefined name `copy2`
+    --> engine/storage.py:1175:13
+     |
+1173 |         else:
+1174 |
+1175 |             copy2(
+     |             ^^^^^
+1176 |                 item,
+1177 |                 destination,
+     |
+
+F821 Undefined name `rmtree`
+    --> engine/storage.py:1206:13
+     |
+1204 |         if item.is_dir():
+1205 |
+1206 |             rmtree(
+     |             ^^^^^^
+1207 |                 item,
+1208 |                 ignore_errors=True,
+     |
+
+F821 Undefined name `rmtree`
+    --> engine/storage.py:1272:9
+     |
+1270 |     if directory.exists():
+1271 |
+1272 |         rmtree(
+     |         ^^^^^^
+1273 |             directory,
+1274 |             ignore_errors=True,
+     |
+
+SIM105 Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`
+   --> engine/universe_loader.py:162:5
+    |
+160 |           "Referer": "https://www.nseindia.com/",
+161 |       })
+162 | /     try:
+163 | |         s.get("https://www.nseindia.com", timeout=10)
+164 | |     except Exception:
+165 | |         pass
+    | |____________^
+166 |       r = s.get(url, timeout=timeout)
+167 |       r.raise_for_status()
+    |
+help: Replace `try`-`except`-`pass` with `with contextlib.suppress(Exception): ...`
+
+B905 `zip()` without an explicit `strict=` parameter
+   --> engine/universe_loader.py:198:23
+    |
+196 |     sector = {}
+197 |     if "Industry" in df.columns:
+198 |         for s, ind in zip(df[sym_col], df["Industry"]):
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+199 |             s, ind = str(s).strip().upper(), str(ind).strip()
+200 |             if s and ind and ind.lower() != "nan":
+    |
+help: Add explicit value for parameter `strict=`
+
+Found 111 errors.
+No fixes available (21 hidden fixes can be enabled with the `--unsafe-fixes` option).
