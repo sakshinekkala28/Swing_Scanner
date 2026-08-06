@@ -1,0 +1,93 @@
+# ==============================================================================
+# Swing Scanner
+# Production Requirements
+# ==============================================================================
+
+# UI
+streamlit>=1.48.0
+
+# Data
+pandas>=2.3.0
+numpy>=2.3.0
+pyarrow>=21.0.0
+
+# Market Data
+yfinance>=0.2.65
+
+# HTTP
+requests>=2.32.4
+httpx>=0.28.1
+curl-cffi>=0.13.0
+
+# HTML/XML
+beautifulsoup4>=4.13.5
+lxml>=6.0.1
+
+# Charts
+plotly>=6.3.0
+
+# Technical Indicators
+ta>=0.11.0
+
+# Scientific
+scipy>=1.16.1
+
+# News & RSS
+feedparser>=6.0.11
+
+# NLP / Sentiment
+vaderSentiment>=3.3.2
+
+# Date utilities
+python-dateutil>=2.9.0
+
+# Timezones
+pytz>=2025.2
+
+# Progress bars
+tqdm>=4.67.1
+
+# Excel
+openpyxl>=3.1.5
+xlsxwriter>=3.2.5
+
+# Configuration
+python-dotenv>=1.1.1
+PyYAML>=6.0.2
+
+# Logging
+rich>=14.1.0
+
+# Cache
+diskcache>=5.6.3
+
+# Retry
+tenacity>=9.1.2
+
+# Scheduling
+schedule>=1.2.2
+
+# Serialization
+orjson>=3.11.2
+
+# Validation
+pydantic>=2.11.7
+
+# ==========================================================================
+# Development
+# ==========================================================================
+
+pytest>=8.4.1
+pytest-cov>=7.0.0
+
+ruff>=0.12.10
+black>=25.1.0
+mypy>=1.17.1
+
+pre-commit>=4.3.0
+
+# ==========================================================================
+# Optional
+# ==========================================================================
+
+watchdog>=6.0.0
